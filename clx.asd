@@ -70,6 +70,7 @@
 	      :pathname #.(make-pathname :directory '(:relative))
 	      :components
 	      ((:file "shape")
+	       (:file "doublebuffer")
 	       (:file "big-requests")
 	       (:file "xvidmode")
 	       (:xrender-source-file "xrender")

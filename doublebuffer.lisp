@@ -83,4 +83,4 @@
 				      list-of-windows-and-actions))))
 
 (defun swap-backbuffer (window action)
-  (swap-buffers (window-display window) (list (list window action))))
+  (swap-backbuffers (window-display window) (list (list window action))))

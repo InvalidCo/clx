@@ -16,10 +16,17 @@
 (in-package :xlib)
 
 (define-extension "DOUBLE-BUFFER"
-    :errors (doublebuffer-bad-buffer))
+    :errors (bad-backbuffer))
 
-(define-condition doublebuffer-bad-buffer (request-error) ())
-(define-error doublebuffer-bad-buffer decode-core-error)
+(export '(bad-backbuffer
+	  backbuffer
+	  create-backbuffer
+	  destroy-backbuffer
+	  swap-backbuffers
+	  swap-backbuffer))
+
+(define-condition bad-backbuffer (request-error) ())
+(define-error bad-backbuffer decode-core-error)
 
 (def-clx-class (backbuffer (:include drawable) (:copier nil)
 			   (:print-function print-drawable)))
@@ -31,7 +38,7 @@
     (:untouched 2)
     (:copied 3)))
 
-(defun doublebuffer-query-version (display)
+(defun backbuffer-query-version (display)
   (with-buffer-request-and-reply
       (display (extension-opcode display "DOUBLE-BUFFER") 16)
       ((card16 0))
@@ -39,7 +46,7 @@
      (card8-get 8)
      (card8-get 9))))
 
-(defun create-back-buffer (window &optional (swap-action-hint :untouched))
+(defun create-backbuffer (window &optional (swap-action-hint :untouched))
   (let* ((display (window-display window))
 	 (backbuffer-id (resourcealloc display))
 	 (backbuffer (make-backbuffer :display display)))
@@ -54,15 +61,14 @@
       (card16 0))
     backbuffer))
 
-(defun destroy-back-buffer (backbuffer)
+(defun destroy-backbuffer (backbuffer)
   (let* ((display (backbuffer-display backbuffer)))
     (with-buffer-request
 	(display (extension-opcode display "DOUBLE-BUFFER"))
-      (card8 2) ;; X_DbeDeallocateBackBufferName
-      (card16 2)
+      (data 2) ;; X_DbeDeallocateBackBufferName
       (resource-id (backbuffer-id backbuffer)))))
 
-(defun swap-buffers (display list-of-windows-and-actions)
+(defun swap-backbuffers (display list-of-windows-and-actions)
   (with-buffer-request
       (display (extension-opcode display "DOUBLE-BUFFER"))
     (data 3) ;; X_DbeSwapBuffers
@@ -76,5 +82,5 @@
 					  (list (window-id (first x)) (encode-swap-action (second x))))
 				      list-of-windows-and-actions))))
 
-(defun swap-buffer (window action)
+(defun swap-backbuffer (window action)
   (swap-buffers (window-display window) (list (list window action))))

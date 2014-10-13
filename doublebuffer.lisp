@@ -91,8 +91,6 @@
     :COPIED - the contents of the frontbuffer are copied to the backbuffer
 
    DISPLAY is an optional argument specifying a DISPLAY. This function works only on one (1) display at a time. The option of emitting DISPLAY is a convenience - it defaults to the first window's display."
-  (when (not display)
-    (setf display (window-display (first (first list-of-windows-and-actions)))))
   (with-buffer-request
       (display (extension-opcode display "DOUBLE-BUFFER"))
     (data 3) ;; X_DbeSwapBuffers

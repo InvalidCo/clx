@@ -1,4 +1,5 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: XLIB; -*-
+
 ;;; ---------------------------------------------------------------------------
 ;;; doublebuffer X11 extension (xdbe) protocol implementation
 ;;; based on dbelib.html [1], dbeproto.h [2] & dbe.h [3]
@@ -79,16 +80,17 @@
    LIST-OF-WINDOWS-AND-ACTIONS =
      ((window action)
       (window action)...
-   Each WINDOW is a WINDOW which has an associated BACKBUFFER.
+   Each WINDOW is a X window which has an associated BACKBUFFER.
    Pass the function the WINDOW and NOT the BACKBUFFER.
+
+   Once the call is made, the visible portion (frontbuffer) and the non-visible portion (backbuffer) switch contents. After that, the ACTION is performed.
+
    Each ACTION is one of the following
     :BACKGROUND - the backbuffer is cleared with the bg-color property it has
     :UNTOUCHED - the backbuffer is left untouched
     :COPIED - the contents of the frontbuffer are copied to the backbuffer
 
-   DISPLAY is an optional argument specifying a DISPLAY. This function works only on one (1) display at a time. The option of emitting DISPLAY is a convenience - it defaults to the first window's display.
-
-   Once this call is made, the visible portion (frontbuffer) and the non-visible portion (backbuffer) switch places. After that, appropriate action is taken (the effects of the action taken can only be seen after calling SWAP-BACKBUFFERS for a second time."
+   DISPLAY is an optional argument specifying a DISPLAY. This function works only on one (1) display at a time. The option of emitting DISPLAY is a convenience - it defaults to the first window's display."
   (when (not display)
     (setf display (window-display (first (first list-of-windows-and-actions)))))
   (with-buffer-request

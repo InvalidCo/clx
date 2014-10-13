@@ -23,7 +23,10 @@
 	  create-backbuffer
 	  destroy-backbuffer
 	  swap-backbuffers
-	  swap-backbuffer))
+	  swap-backbuffer
+	  begin-backbuffer-idiom
+	  end-backbuffer-idiom
+	  with-backbuffer-idiom))
 
 (pushnew :clx-ext-backbuffer *features*)
 
@@ -114,3 +117,20 @@
 (defun swap-backbuffer (window action)
   "This is a convenience function with a saner calling convention. Most people (should) use this. See SWAP-BACKBUFFERS for details."
   (swap-backbuffers (list (list window action))))
+
+(defun begin-backbuffer-idiom (display)
+  (with-buffer-request (display (extension-opcode display "DOUBLE-BUFFER"))
+    (data 4))) ;; X_DbeBeginIdom [sic]
+
+(defun end-backbuffer-idiom (display)
+  (with-buffer-request (display (extension-opcode display "DOUBLE-BUFFER"))
+    (data 5))) ;; X_DbeEndIdom
+
+(defmacro with-backbuffer-idiom ((display) &body body)
+  (let ((dpy-sym (gensym "DISPLAY")))
+    `(let ((,dpy-sym ,display))
+       (unwind-protect
+	    (progn
+	      (begin-backbuffer-idiom ,dpy-sym)
+	      ,@body)
+	 (end-backbuffer-idiom ,dpy-sym)))))
